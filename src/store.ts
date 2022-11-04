@@ -19,6 +19,18 @@ const store = new Vuex.Store({
     },
     createLevel(state, data) {
       state.mapData.levels.push(data)
+    },
+    setCurrentLevel(state, data) {
+      state.currentLevel = data
+    },
+    addSprite(state, data) {
+      const currentLevel = state.currentLevel
+      const { position, sprite } = data
+      state.mapData.levels[currentLevel].sprites.set(position, sprite)
+    },
+    deleteSprite(state, position) {
+      const currentLevel = state.currentLevel
+      state.mapData.levels[currentLevel].sprites.delete(position)
     }
   }
 })

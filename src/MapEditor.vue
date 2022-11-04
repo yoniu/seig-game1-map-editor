@@ -6,7 +6,6 @@
   .title {{mapData.name}} -- 第
     select(v-model="currentLevel") 
       option(v-for="(v, k) in mapData.levels" :value="k") {{k+1}}
-      option(value="2") 2
     | 关
     button(@click="createLevel()") 添加关卡
     button 保存
@@ -126,16 +125,18 @@ export default class MapEditor extends Vue {
     ev.target.innerHTML = `<img src="${this.dragItem.image}" width="${this.dragItem.width}" height="${this.dragItem.height}" />`
     ev.preventDefault()
     const {name, type, width, height, image} = this.dragItem
-    const sprites = this.mapData.levels[this.currentLevel].sprites
     const position = ev.target.getAttribute('x') + '-' + ev.target.getAttribute('y')
-    this.mapData.levels[this.currentLevel].sprites.set(position, {
-      name,
-      type,
-      width,
-      height,
-      x: ev.target.getAttribute('x'),
-      y: ev.target.getAttribute('y'),
-      image,
+    this.$store.commit('addSprite', {
+      position,
+      sprite: {
+        name,
+        type,
+        width,
+        height,
+        x: ev.target.getAttribute('x'),
+        y: ev.target.getAttribute('y'),
+        image,
+      }
     })
     ev.target.setAttribute('data-key', position)
     this.dragItem = {}
@@ -150,7 +151,7 @@ export default class MapEditor extends Vue {
     }
     const evN = myev as HTMLDivElement
     if(evN.getAttribute('data-key')) {
-      this.mapData.levels[this.currentLevel].sprites.delete(evN.getAttribute('data-key'))
+      this.$store.commit('deleteSprite', evN.getAttribute('data-key'))
       evN.removeAttribute('data-key')
       evN.innerHTML = `(${evN.getAttribute('x')}, ${evN.getAttribute('y')})`
     }
@@ -172,6 +173,7 @@ export default class MapEditor extends Vue {
    */
   @Watch('currentLevel')
   onCurrentLevelChange() {
+    this.$store.commit('setCurrentLevel', this.currentLevel);
     this.$nextTick(() => {
       this.selectChange()
     })
