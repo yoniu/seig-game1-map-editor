@@ -10,7 +10,8 @@ const store = new Vuex.Store({
       name: '',
       levels: []
     },
-    currentLevel: 0
+    currentLevel: 0,
+    loadingFile: false
   },
   mutations: {
     createMap(state, data) {
@@ -31,6 +32,29 @@ const store = new Vuex.Store({
     deleteSprite(state, position) {
       const currentLevel = state.currentLevel
       state.mapData.levels[currentLevel].sprites.delete(position)
+    },
+    uploadMap(state, json) {
+      state.mapData.name = json.name;
+      for(let item of json.levels) {
+        let level = {
+          level: item.level,
+          gridWidth: item.gridWidth,
+          gridHeight: item.gridHeight,
+          x: item.x,
+          y: item.y,
+          sprites: new Map()
+        };
+        for(let i of item.sprites) {
+          const key = i[0],
+                data = i[1];
+          level.sprites.set(key, data);
+        }
+        state.mapData.levels.push(level)
+      }
+      state.loadingFile = true;
+    },
+    setLoadingFile(state, value) {
+      state.loadingFile = value
     }
   }
 })
